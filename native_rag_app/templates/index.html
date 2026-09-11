@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Harbor Desk Support</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Harbor Desk Support</h1>
+      <p class="subtitle">
+        Retrieval runs on <strong>MeshAPI's built-in RAG</strong> — upload and search,
+        no local vector database. Type a question or use the mic; answers can be read back.
+      </p>
+    </header>
+
+    <p class="ingest-hint">
+      First run: index the sample docs once.
+      <button id="ingest-btn" type="button">Index knowledge base</button>
+      <span id="ingest-status"></span>
+    </p>
+
+    <form id="ask-form" class="ask-form">
+      <input
+        id="question-input"
+        type="text"
+        name="question"
+        placeholder="e.g. What happens if I invite more people than my plan allows?"
+        autofocus
+      >
+      <button type="submit">Ask</button>
+      <button id="mic-btn" type="button" title="Ask by voice">🎤</button>
+    </form>
+
+    <label class="speak-toggle">
+      <input type="checkbox" id="speak-toggle" checked>
+      speak the answer back
+    </label>
+
+    <p id="status" class="status"></p>
+
+    <section id="answer-section" class="answer" hidden>
+      <h2>Answer</h2>
+      <p id="answer-question" class="heard"></p>
+      <p id="answer-text"></p>
+      <audio id="answer-audio" controls hidden></audio>
+    </section>
+
+    <section id="sources-section" class="sources" hidden>
+      <h2>Sources</h2>
+      <ul id="sources-list"></ul>
+    </section>
+  </main>
+  <script src="/static/app.js"></script>
+</body>
+</html>

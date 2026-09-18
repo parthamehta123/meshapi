@@ -117,8 +117,8 @@ flowchart LR
 |---|---|
 | **Image generation** | Text prompt → a generated image. |
 | **Image editing** | Take an image and remove its background, upscale it, inpaint/outpaint it, etc. |
-| **Video generation** | Text prompt → a short generated video clip. Async — you poll until it's ready (took ~30 seconds for a 3-second clip in testing). |
-| **Text-to-speech (TTS)** | Text → an audio file of someone speaking it. |
+| **Video generation** | Text prompt → a short generated video clip. Async — you poll until it's ready (took ~30 seconds for a 3-second clip in testing). Note: the gateway enforces a minimum balance reserve for async video jobs — the notebook catches this gracefully if your balance is below the threshold. |
+| **Text-to-speech (TTS)** | Text → an audio file of someone speaking it. Quirk: passing `response_format` (mp3, wav, etc.) returns 422 on all models — omit it entirely and the gateway returns `audio/mpeg`. |
 | **Speech-to-text (STT)** | Audio → the text transcript of what was said. |
 | **Audio translation** | Audio in one language → text in another. |
 | **Realtime speech-to-speech** | A live, two-way voice conversation over a WebSocket — like a phone call with an AI. The notebook only tests that the connection opens (a full voice demo needs a microphone pipeline, which is an app-level project, not a notebook cell). |
@@ -181,7 +181,7 @@ None of these have a Python SDK method — they're plain HTTP calls with the sam
 |---|---|
 | **Python SDK** | The `meshapi` package — what this whole notebook is built on. |
 | **Go SDK** | Same ideas, for Go projects instead of Python. Not demoed (wrong language for a Python notebook). |
-| **MCP Server** | Lets AI coding tools (Claude Code, Cursor) call MeshAPI directly from your editor's chat. This is IDE configuration, not a Python call — shown as a config snippet, not executed. |
+| **MCP Server** | Lets AI coding tools (Claude Code, Cursor) call MeshAPI directly from your editor's chat — confirmed live with `get_balance`, `list_models`, `generate_image`, and `web_search`. Gap: `list_voices` is exposed but there is no TTS generation tool (use the REST API for that). Also, `generate_image` requires an explicit `model` param despite the schema defaulting it to null. |
 | **CLI (`meshapi-code`)** | A separate terminal app for chatting with models and having them edit your files, similar to Claude Code. Installed and run outside Python — shown, not executed. |
 
 ---

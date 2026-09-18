@@ -144,7 +144,7 @@ the dashboard.
 |---|---|:---:|
 | Python SDK | The `meshapi` package — what all our notebooks/app are built on. | ✅ |
 | Go SDK | Same idea, for Go projects. | n/a (not our language) |
-| MCP Server | Lets AI coding tools (Claude Code, Cursor, Claude Desktop) call MeshAPI directly as a tool — e.g. "list models," "check balance" from inside your editor's chat. | ❌ |
+| MCP Server | Lets AI coding tools (Claude Code, Cursor, Claude Desktop) call MeshAPI directly as a tool — e.g. "list models," "check balance," "generate an image" from inside your editor's chat. | ✅ — confirmed live: `get_balance`, `list_models`, `generate_image`, `web_search` all work; `list_voices` works but there is no TTS generation tool (needs the REST API directly) |
 | CLI (`meshapi-code`) | A separate terminal app — chat with any model and have it read/write files and run commands in your project, similar to Claude Code. Not a library you import. | ❌ |
 
 ---
@@ -232,6 +232,20 @@ Things that only showed up by executing real code against a real key, not from r
   headers, so this needs `requests`/`httpx` directly, not the `MeshAPI` client.
 - **Video generation was fast**: a 3-second clip on `byteplus/seedance-1-0-pro-fast` completed in
   roughly 30 seconds end-to-end, not the "hours" async framing might suggest.
+- **Video generation enforces a minimum balance reserve** — even with ~$4 available, the gateway
+  returned `Insufficient balance to start a video generation task`. The notebook now catches this
+  gracefully and explains the threshold instead of crashing.
+- **TTS `response_format` is broken for all values** — passing `response_format` (mp3, wav, pcm,
+  opus) to `POST /v1/audio/speech` returns 422 regardless of `stream` setting, across all tested
+  models (Kokoro, gpt-4o-mini-tts, ElevenLabs). **Omitting `response_format` entirely works** and
+  returns `audio/mpeg`. This is a gateway-level bug, not model-specific.
+- **MCP Server `generate_image` requires `model`** — the tool schema defaults it to `null`, but the
+  gateway returns `{"detail": "'model' is required."}`. The MCP wrapper also swallows error details,
+  surfacing only `Mesh API error (HTTP 422)` with no body.
+- **MCP Server has no TTS tool** — `list_voices` is exposed but there is no speech generation tool;
+  TTS must go through the REST API / Python SDK directly.
+- **SDK constructor uses `token=`, not `api_key=`** — `MeshAPI(token=..., base_url=...)`, and
+  `base_url` is required (no default).
 - The `X-Mesh-Routing-Attempts`/`X-Mesh-Routing-Fallback` headers and `usage.classifier_tokens` (on
   auto-routed responses) aren't always present — they showed up in some runs and not others, so
   treat them as present-when-relevant rather than guaranteed on every response.
